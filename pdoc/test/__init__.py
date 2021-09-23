@@ -45,8 +45,9 @@ EMPTY_MODULE.__pdoc__ = {}  # type: ignore
 with warnings.catch_warnings(record=True):
     DUMMY_PDOC_MODULE = pdoc.Module(EMPTY_MODULE, context=pdoc.Context())
 
-T = typing.TypeVar("T")
-
+class ClassWithNew:
+    def __new__(self, arg):
+        pass
 
 @contextmanager
 def temp_dir():
@@ -1009,7 +1010,7 @@ class Foo:
             def __init__(self):
                 """baz"""
 
-        class F(typing.Generic[T]):
+        class F(ClassWithNew):
             """baz"""
             def __init__(self):
                 """bar"""
@@ -1043,16 +1044,16 @@ class Foo:
 
         self.assertEqual(pdoc.Class('C2', mod, C2).params(), ['a', 'b', 'c=None', '*', 'd=1', 'e'])
 
-        class G(typing.Generic[T]):
+        class G(ClassWithNew):
             def __init__(self, a, b, c=100):
                 pass
 
         self.assertEqual(pdoc.Class('G', mod, G).params(), ['a', 'b', 'c=100'])
 
-        class G2(typing.Generic[T]):
+        class G2(ClassWithNew):
             pass
 
-        self.assertEqual(pdoc.Class('G2', mod, G2).params(), ['*args', '**kwds'])
+        self.assertEqual(pdoc.Class('G2', mod, G2).params(), ['arg'])
 
     def test_url(self):
         mod = pdoc.Module(EXAMPLE_MODULE)
